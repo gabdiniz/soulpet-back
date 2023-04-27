@@ -22,7 +22,7 @@ router.get("/produtos", async (req, res) => {
             const listaProdutos = await Produto.findAll({ where });
             res.json(listaProdutos);
         } catch(error) {
-            res.status(500).json("Um erro aconteceu!")
+            res.status(500).json({message: "Um erro aconteceu!"})
         }
     });
 
@@ -32,9 +32,22 @@ router.get("/produtos", async (req, res) => {
         if(produto) {
             res.json(produto);
         } else {
-            res.status(404).json({message: "Produto não encontrado"})
+            res.status(404).json({ message: "Produto não encontrado" })
         }
     }
 
+    router.post("/produtos", async (req, res) => {
+  
+        const { nome, preco, descricao, desconto, dataDesconto, categoria } = req.body;
+        try {
+            const novo = await Produto.create(
+                { nome, preco, descricao, desconto, dataDesconto, categoria },
+            );
+                res.status(201).json(novo);
+            } catch (err) {
+                console.log(err);
+                res.status(500).json({ message: "Um erro aconteceu." });
+            }
+        });
 
 module.exports = router;
