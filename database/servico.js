@@ -7,7 +7,7 @@ const Servico = connection.define ("servico", {
         allowNull: false,
     },
     preco: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.DOUBLE,
         allowNull: false,
     }
 });
