@@ -30,3 +30,5 @@ const Agendamento = connection.define("agendamento", {
 
 Pet.belongsToMany(Servico, { through: Agendamento});
 Servico.belongsToMany(Pet, { through: Agendamento});
+
+module.exports = Agendamento;
