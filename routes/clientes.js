@@ -91,5 +91,25 @@ router.delete("/clientes/:id", async (req, res) => {
     res.status(500).json({ message: "Um erro aconteceu." });
   }
 });
+//Esta rota deve responder com os dados do endereço do Cliente especificado pelo clienteId.
+router.get("/clientes/:clienteId/endereco", async (req, res) => {
+  const { clienteId } = req.params;
+
+  try {
+    const cliente = await Cliente.findByPk(clienteId, {
+      include: [{ model: Endereco, as: "endereco" }],
+    });
+
+    if (!cliente) {
+      res.status(404).json({ message: "Cliente não encontrado." });
+      return;
+    }
+
+    res.json(cliente.endereco);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+});
 
 module.exports = router;
