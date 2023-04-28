@@ -4,25 +4,6 @@ const Pet = require("./pet");
 const Servico = require("./servico");
 
 const Agendamento = connection.define("agendamento", {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    petId: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Pet,
-            key: 'id'
-        }
-    },
-    servicoId: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Servico,
-            key: 'id'
-        }
-    },
     dataAgendada: {
         type: DataTypes.DATEONLY,
         allowNull: false,
@@ -33,7 +14,8 @@ const Agendamento = connection.define("agendamento", {
     }
 });
 
-Pet.belongsToMany(Servico, { through: Agendamento});
-Servico.belongsToMany(Pet, { through: Agendamento});
+Pet.hasMany(Agendamento);
+Servico.hasMany(Agendamento);
+
 
 module.exports = Agendamento;
