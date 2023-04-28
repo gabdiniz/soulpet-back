@@ -46,4 +46,22 @@ router.get('/servicos/:id', async (req, res) => {
   }
 });
 
+//Rota para atualizar servico;
+router.put("/servicos/:id", async (req, res) => {
+  const { nome, preco } = req.body;
+  const { id } = req.params;
+  try{
+    const servico = await Servico.findByPk(id);
+    if (servico){
+      await Servico.update(nome, preco);
+      res.status(200).json("Serviço editado com sucesso!")
+    } else {
+      res.status(404).json({ message: "O serviço não foi encontrado." });
+    }
+  }catch(err){
+    console.error(err);
+    res.status(500).send({message: "Um erro ocorreu"});
+  }
+})
+
 module.exports = router;
