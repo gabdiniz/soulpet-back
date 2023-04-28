@@ -21,7 +21,8 @@ router.post("/agendamentos", async (req, res) => {
         );
         res.status(201).json(novoAgendamento);
     } 
-    catch {
+    catch(err) {
+        console.log(err)
         res.status(500).json({message:"Um erro aconteceu!"});
     }
 });
