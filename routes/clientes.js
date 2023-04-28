@@ -114,26 +114,29 @@ router.get("/clientes/:clienteId/endereco", async (req, res) => {
 });
 // Rota para listar os pets de um cliente
 router.get("/clientes/:clienteId/pets", async (req, res) => {
-  const { clienteId } = req.params;
+  const clienteId = req.params.clienteId;
   
   try {
-    // Busca o cliente pelo ID
-    const cliente = await Cliente.findByPk(clienteId, {
-      include: Pet,
-    });
+    // Procura pelo cliente
+    const cliente = await Cliente.findByPk(clienteId);
 
     if (!cliente) {
-      res.status(404).json({ message: "Cliente não encontrado." });
-      return;
+      return res.status(404).json({ message: "Cliente não encontrado." });
     }
 
-    // Retorna todos os pets associados ao cliente
-    const pets = cliente.pets;
+    // Procura por pets associados ao cliente
+    const pets = await Pet.findAll({ where: { clienteId } });
+
+    if (!pets || pets.length === 0) {
+      return res.status(404).json({ message: "Nenhum pet encontrado para o cliente." });
+    }
+
     res.json(pets);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Um erro aconteceu." });
   }
 });
+
 
 module.exports = router;
