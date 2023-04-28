@@ -1,5 +1,3 @@
-
-
 const { Router } = require("express");
 const { Op } = require("sequelize");
 const Produto = require("../database/produto");
@@ -44,18 +42,31 @@ router.get("/produtos/:id", async (req, res) => {
 });
 
 router.post("/produtos", async (req, res) => {
-
+  
     const { nome, preco, descricao, desconto, dataDesconto, categoria } = req.body;
+    const data = toDate(dataDesconto, 'yyyy-MM-dd', { timeZone: 'America/Sao_Paulo' });
+    const dataAtual = toDate(new Date(), { timeZone: 'America/Sao_Paulo' });
+    dataAtual.setHours(0, 0, 0, 0);
+
+if (categoria !== "higiene" && categoria !== "brinquedos" && categoria !== "conforto" ) {
+        return res.status(400).json({ message: "Adicione uma categoria válida: higiene, brinquedos ou conforto." }); 
+    }
+    if(data < dataAtual) {
+        return res.status(400).json({ message: "A data não pode ser anterior a data atual." }); 
+    }
+    if(desconto < 0 || desconto > 100) {
+        return res.status(400).json({ message: "Aplique um desconto de 0 a 100%." }); 
+    }
     try {
         const novo = await Produto.create(
             { nome, preco, descricao, desconto, dataDesconto, categoria },
         );
-        res.status(201).json(novo);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
-    }
-});
+            res.status(201).json(novo);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ message: "Um erro aconteceu." });
+        }
+    });
 
 router.delete("/produtos/all", async (req, res) => {
     try{
@@ -163,8 +174,6 @@ router.delete("/pedidos/produtos/:id", async (req, res) => {
         res.status(500).json({ message: "Um erro aconteceu." });
     }
 });
-
-
 
 
 module.exports = router;
