@@ -47,7 +47,7 @@ router.get("/pedidos/clientes/:id", async (req, res) => {
 });
 
 
-module.exports = router;
+
 
 // Post
 router.post("/pedidos", async (req, res) => {
@@ -105,3 +105,5 @@ router.delete("/pedidos/produtos/:id", async (req, res) => {
         res.status(500).json({ message: "Um erro aconteceu." });
     }
 });
+
+module.exports = router;

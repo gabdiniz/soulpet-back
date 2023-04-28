@@ -71,4 +71,24 @@ router.delete("/servicos/:id", async (req, res) => {
   }
 });
 
+//Rota para atualizar servico;
+router.put("/servicos/:id", async (req, res) => {
+  const { id } = req.params;
+  const { nome, preco } = req.body;
+  if (!nome) return res.status(400).json({ message: "O nome é obrigatório"});
+  if (!preco) return res.status(400).json({ message: "O preço é obrigatório"});
+  try{
+    const servico = await Servico.findByPk(id);
+    if (servico){
+      await servico.update({nome, preco});
+      res.status(200).json("Serviço editado com sucesso!")
+    } else {
+      res.status(404).json({ message: "O serviço não foi encontrado." });
+    }
+  }catch(err){
+    console.error(err);
+    res.status(500).send({message: "Um erro ocorreu"});
+  }
+});
+
 module.exports = router;
