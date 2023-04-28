@@ -1,5 +1,6 @@
 const Cliente = require("../database/cliente");
 const Endereco = require("../database/endereco");
+const Pet = require("../database/pet");
 
 const { Router } = require("express");
 
@@ -106,6 +107,29 @@ router.get("/clientes/:clienteId/endereco", async (req, res) => {
     }
 
     res.json(cliente.endereco);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+});
+// Rota para listar os pets de um cliente
+router.get("/clientes/:clienteId/pets", async (req, res) => {
+  const { clienteId } = req.params;
+  
+  try {
+    // Busca o cliente pelo ID
+    const cliente = await Cliente.findByPk(clienteId, {
+      include: Pet,
+    });
+
+    if (!cliente) {
+      res.status(404).json({ message: "Cliente não encontrado." });
+      return;
+    }
+
+    // Retorna todos os pets associados ao cliente
+    const pets = cliente.pets;
+    res.json(pets);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Um erro aconteceu." });
