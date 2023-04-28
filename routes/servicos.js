@@ -3,19 +3,6 @@ const Servico = require("../database/servico")
 
 const router = Router();
 
-router.post("/servicos", async(req, res) => {
-  const { nome, preco } = req.body;
-  if (!nome) return res.status(400).json({ message: "O nome é obrigatório"});
-  if (!preco) return res.status(400).json({ message: "O preço é obrigatório"});
-  try {
-    const servico = await Servico.create({ nome, preco });
-    res.status(201).json(servico)
-  }
-  catch (e) {
-    res.status(500).json({ message: "Um erro aconteceu!" })
-  }
-});
-
 // Rota para listar todos os serviços
 router.get('/servicos', async (req, res) => {
   try {
@@ -26,7 +13,7 @@ router.get('/servicos', async (req, res) => {
     const servicos = await Servico.findAll({ where });
     res.json(servicos);
   } catch (error) {
-    res.status(500).send('Erro ao buscar serviços');
+    res.status(500).send({ message: "Um erro aconteceu." });
   }
 });
 
@@ -38,11 +25,49 @@ router.get('/servicos/:id', async (req, res) => {
     if (servico) {
       res.json(servico);
     } else {
-      res.status(404).send('Serviço não encontrado');
+      res.status(404).json({ message: "Serviço não encontrado." })
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send('Erro ao buscar serviço');
+    res.status(500).send({ message: "Um erro aconteceu." });
+  }
+});
+
+router.post("/servicos", async (req, res) => {
+  const { nome, preco } = req.body;
+  if (!nome) return res.status(400).json({ message: "O nome é obrigatório." });
+  if (!preco) return res.status(400).json({ message: "O preço é obrigatório." });
+  try {
+    const servico = await Servico.create({ nome, preco });
+    res.status(201).json(servico);
+  }
+  catch (e) {
+    res.status(500).json({ message: "Um erro aconteceu." })
+  }
+});
+
+router.delete("/servicos/all", async (req, res) => {
+  try{
+      await Servico.destroy({where: {}});
+      res.json({message: "Todos os servicos foram deletados."})
+  } catch(err){
+      console.log(err);
+      res.status(500).json({message:"Um erro aconteceu."})
+  }
+});
+
+router.delete("/servicos/:id", async (req, res) => {
+  try {
+    const servico = await Servico.findByPk(req.params.id);
+    if (servico) {
+      await servico.destroy();
+      res.json({ message: "Serviço removido com sucesso." })
+    } else {
+      res.status(404).json({ message: "Serviço não encontrado." })
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Um erro aconteceu." });
   }
 });
 
