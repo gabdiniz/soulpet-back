@@ -18,6 +18,9 @@ const Pet = connection.define("pet", {
   dataNasc: {
     type: DataTypes.DATEONLY,
   },
+  imagemUrl: {
+    type: DataTypes.STRING,
+  },
 });
 
 // Relacionamento 1:N (Um cliente pode ter N pets)
