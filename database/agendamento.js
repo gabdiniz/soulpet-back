@@ -4,6 +4,11 @@ const Pet = require("./pet");
 const Servico = require("./servico");
 
 const Agendamento = connection.define("agendamento", {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     petId: {
         type: DataTypes.INTEGER,
         references: {
@@ -25,7 +30,7 @@ const Agendamento = connection.define("agendamento", {
     realizada: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-    },
+    }
 });
 
 Pet.belongsToMany(Servico, { through: Agendamento});
