@@ -50,7 +50,16 @@ router.get("/pedidos/clientes/:id", async (req, res) => {
 module.exports = router;
 
 // Post
-
+router.post("/pedidos", async (req, res) => {
+    try {
+      const pedidos = req.body;
+      const pedidosCriados = await Pedido.bulkCreate(pedidos, { validate: true });
+      res.status(201).json(pedidosCriados);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Um erro aconteceu" });
+    }
+  });
 // Put
 
 // Delete
