@@ -36,6 +36,6 @@ app.use(rotasAgendamentos);
 app.listen(3001, () => {
   // Gerar as tabelas a partir do model
   // Force = apaga tudo e recria as tabelas
-  connection.sync({ force: true });
+  connection.sync();
   console.log("Servidor rodando em http://localhost:3001/");
 });
