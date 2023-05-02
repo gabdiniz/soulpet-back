@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { connection } = require("./database");
+const Joi = require('joi');
 
 const Produto = connection.define("produto", {
   nome: {
@@ -28,4 +29,13 @@ const Produto = connection.define("produto", {
   }
 });
 
-module.exports = Produto;
+const schemaProduto = Joi.object({
+  nome: Joi.string().required(),
+  preco: Joi.number().required(),
+  descricao: Joi.string().required(),
+  desconto: Joi.number().required(),
+  dataDesconto: Joi.date().required(),
+  categoria: Joi.string().required()
+})
+
+module.exports = { Produto, schemaProduto };

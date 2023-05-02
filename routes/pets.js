@@ -1,5 +1,6 @@
-const Cliente = require("../database/cliente");
-const Pet = require("../database/pet");
+const { Cliente } = require("../database/cliente");
+const { Pet, schemaPet } = require("../database/pet");
+const customMessages = require("../joi/customMessages");
 
 const { Router } = require("express");
 
@@ -23,12 +24,14 @@ router.get("/pets/:id", async (req, res) => {
 });
 
 router.post("/pets", async (req, res) => {
-  const { nome, tipo, porte, dataNasc, clienteId } = req.body;
+  const { nome, tipo, porte, dataNasc, clienteId, imagemUrl } = req.body;
 
   try {
+    const { error } = schemaPet.validate({ nome, tipo, porte, dataNasc, clienteId, imagemUrl }, { abortEarly: false, messages: customMessages });
+    if (error) return res.status(400).json(error.details.map(datalhe => datalhe.message))
     const cliente = await Cliente.findByPk(clienteId);
     if (cliente) {
-      const pet = await Pet.create({ nome, tipo, porte, dataNasc, clienteId });
+      const pet = await Pet.create({ nome, tipo, porte, dataNasc, clienteId, imagemUrl });
       res.status(201).json(pet);
     } else {
       res.status(404).json({ message: "Cliente não encontrado." });
@@ -41,7 +44,7 @@ router.post("/pets", async (req, res) => {
 
 router.put("/pets/:id", async (req, res) => {
   // Esses são os dados que virão no corpo JSON
-  const { nome, tipo, dataNasc, porte } = req.body;
+  const { nome, tipo, dataNasc, porte, imagemUrl } = req.body;
 
   // É necessário checar a existência do Pet
   // SELECT * FROM pets WHERE id = "req.params.id";
@@ -52,8 +55,10 @@ router.put("/pets/:id", async (req, res) => {
     if (pet) {
       // IMPORTANTE: Indicar qual o pet a ser atualizado
       // 1º Arg: Dados novos, 2º Arg: Where
+      const { error } = schemaPet.validate({ nome, tipo, porte, dataNasc, clienteId: pet.clienteId, imagemUrl }, { abortEarly: false, messages: customMessages });
+      if (error) return res.status(400).json(error.details.map(datalhe => datalhe.message))
       await Pet.update(
-        { nome, tipo, dataNasc, porte },
+        { nome, tipo, dataNasc, porte, imagemUrl },
         { where: { id: req.params.id } } // WHERE id = "req.params.id"
       );
       // await pet.update({ nome, tipo, dataNasc, porte });
