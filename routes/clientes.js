@@ -1,6 +1,7 @@
-const Cliente = require("../database/cliente");
-const Endereco = require("../database/endereco");
-const Pet = require("../database/pet");
+const { Cliente, schemaClienteEndereco, schemaCliente } = require("../database/cliente");
+const customMessages = require("../joi/customMessages");
+const { Endereco, schemaEndereco } = require("../database/endereco");
+const { Pet } = require("../database/pet");
 
 const { Router } = require("express");
 
@@ -31,35 +32,50 @@ router.get("/clientes/:id", async (req, res) => {
 
 router.post("/clientes", async (req, res) => {
   // Coletar os dados do req.body
-  const { nome, email, telefone, endereco } = req.body;
 
   try {
-    // Dentro de 'novo' estará o o objeto criado
+    const { nome, email, telefone, endereco } = req.body;
+    const { error } = schemaClienteEndereco.validate({ nome, email, telefone, endereco }, { abortEarly: false, messages: customMessages })
+    if (error) return res.status(400).json(error.details.map((detalhe) => detalhe.message));
     const novo = await Cliente.create(
       { nome, email, telefone, endereco },
       { include: [Endereco] }
     );
-
+    // Dentro de 'novo' estará o o objeto criado
     res.status(201).json(novo);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Um erro aconteceu." });
+    if (err.name === 'SequelizeUniqueConstraintError') {
+      res.status(400).json({ message: "Este email já está cadastrado" })
+    }
+    else {
+      res.status(500).json({ message: "Um erro aconteceu." });
+    }
   }
 });
 
 // atualizar um cliente
 router.put("/clientes/:id", async (req, res) => {
   // obter dados do corpo da requisão
-  const { nome, email, telefone, endereco } = req.body;
   // obter identificação do cliente pelos parametros da rota
-  const { id } = req.params;
   try {
+    const { nome, email, telefone, endereco } = req.body;
+    const { id } = req.params;
     // buscar cliente pelo id passado
     const cliente = await Cliente.findOne({ where: { id } });
     // validar a existência desse cliente no banco de dados
+
     if (cliente) {
       // validar a existência desse do endereço passdo no corpo da requisição
+      let { error } = schemaCliente.validate({ nome, email, telefone }, { abortEarly: false, messages: customMessages });
+      if (error) {
+        return res.status(400).json(error.details.map((detalhe) => detalhe.message))
+      }
       if (endereco) {
+        let { error } = schemaEndereco.validate({ endereco }, { abortEarly: false, messages: customMessages });
+        if (error) {
+          return res.status(400).json(error.details.map((detalhe) => detalhe.message));
+        }
         await Endereco.update(endereco, { where: { clienteId: id } });
       }
       // atualizar o cliente com nome, email e telefone
@@ -115,7 +131,7 @@ router.get("/clientes/:clienteId/endereco", async (req, res) => {
 // Rota para listar os pets de um cliente
 router.get("/clientes/:clienteId/pets", async (req, res) => {
   const clienteId = req.params.clienteId;
-  
+
   try {
     // Procura pelo cliente
     const cliente = await Cliente.findByPk(clienteId);

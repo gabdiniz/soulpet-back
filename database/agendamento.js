@@ -1,7 +1,8 @@
 const { DataTypes } = require("sequelize");
 const { connection } = require("./database");
-const Pet = require("./pet");
-const Servico = require("./servico");
+const { Pet } = require("./pet");
+const { Servico } = require("./servico");
+const Joi = require('joi');
 
 const Agendamento = connection.define("agendamento", {
     dataAgendada: {
@@ -17,5 +18,11 @@ const Agendamento = connection.define("agendamento", {
 Pet.hasMany(Agendamento);
 Servico.hasMany(Agendamento);
 
+const schemaAgendamento = Joi.object({
+    dataAgendada: Joi.date().required(),
+    realizada: Joi.boolean().required(),
+    petId: Joi.number().integer().required(),
+    servicoId: Joi.number().integer().required()
+})
 
-module.exports = Agendamento;
+module.exports = { Agendamento, schemaAgendamento };

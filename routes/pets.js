@@ -1,5 +1,6 @@
-const Cliente = require("../database/cliente");
-const Pet = require("../database/pet");
+const { Cliente } = require("../database/cliente");
+const { Pet, schemaPet } = require("../database/pet");
+const customMessages = require("../joi/customMessages");
 
 const { Router } = require("express");
 
@@ -26,6 +27,8 @@ router.post("/pets", async (req, res) => {
   const { nome, tipo, porte, dataNasc, clienteId, imagemUrl } = req.body;
 
   try {
+    const { error } = schemaPet.validate({ nome, tipo, porte, dataNasc, clienteId, imagemUrl }, { abortEarly: false, messages: customMessages });
+    if (error) return res.status(400).json(error.details.map(datalhe => datalhe.message))
     const cliente = await Cliente.findByPk(clienteId);
     if (cliente) {
       const pet = await Pet.create({ nome, tipo, porte, dataNasc, clienteId, imagemUrl });
@@ -52,6 +55,8 @@ router.put("/pets/:id", async (req, res) => {
     if (pet) {
       // IMPORTANTE: Indicar qual o pet a ser atualizado
       // 1º Arg: Dados novos, 2º Arg: Where
+      const { error } = schemaPet.validate({ nome, tipo, porte, dataNasc, clienteId: pet.clienteId, imagemUrl }, { abortEarly: false, messages: customMessages });
+      if (error) return res.status(400).json(error.details.map(datalhe => datalhe.message))
       await Pet.update(
         { nome, tipo, dataNasc, porte, imagemUrl },
         { where: { id: req.params.id } } // WHERE id = "req.params.id"

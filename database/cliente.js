@@ -4,6 +4,7 @@
 // DataTypes = serve para definir qual o tipo da coluna
 const { DataTypes } = require("sequelize");
 const { connection } = require("./database");
+const Joi = require('joi')
 
 const Cliente = connection.define("cliente", {
   // Configurar a coluna 'nome'
@@ -26,7 +27,7 @@ const Cliente = connection.define("cliente", {
 });
 
 // Associação 1:1 (One-to-One)
-const Endereco = require("./endereco");
+const { Endereco } = require("./endereco");
 
 // Cliente tem um Endereço
 // Endereço ganha uma chave estrangeira (nome do model + Id)
@@ -35,4 +36,23 @@ Cliente.hasOne(Endereco, { onDelete: "CASCADE" });
 // CASCADE = apagar o cliente, faz o endereço associado ser apagado junto
 Endereco.belongsTo(Cliente); // Endereço pertence a um Cliente
 
-module.exports = Cliente;
+const schemaClienteEndereco = Joi.object({
+  nome: Joi.string().required(),
+  email: Joi.string().required().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
+  telefone: Joi.string().required(),
+  endereco: {
+    uf: Joi.string().required().max(2).min(2).label("uf"),
+    cidade: Joi.string().required().label("cidade"),
+    cep: Joi.string().required().label("cep"),
+    rua: Joi.string().required().label("rua"),
+    numero: Joi.string().required().label("número")
+  }
+})
+
+const schemaCliente = Joi.object({
+  nome: Joi.string().required(),
+  email: Joi.string().required().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
+  telefone: Joi.string().required(),
+})
+
+module.exports = { Cliente, schemaClienteEndereco, schemaCliente };
