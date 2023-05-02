@@ -1,6 +1,6 @@
 const { Produto } = require("../database/produto");
 const { Cliente } = require("../database/cliente");
-const { Pedido, schemaPedidos } = require("../database/pedido");
+const { Pedido, schemaPedidos, schemaPedido } = require("../database/pedido");
 const customMessages = require("../joi/customMessages");
 
 const { Router } = require("express");
@@ -63,29 +63,26 @@ router.post("/pedidos", async (req, res) => {
 
 // Put
 router.put("/pedidos/:id", async (req, res) => {
-
-    const { codigo, quantidade, clienteId, produtoId } = req.body;
-    const { id } = req.params;
-    
     try {
-    const pedido = await Pedido.findByPk(id);
-    console.log(pedido);
+        const { codigo, quantidade, clienteId, produtoId } = req.body;
+        const { id } = req.params;
+        const { error } = schemaPedido.validate({ codigo, quantidade, clienteId, produtoId }, { abortEarly: false, messages: customMessages });
+        if (error) return res.status(400).json(error.details.map(detalhe => detalhe.message));
+        const pedido = await Pedido.findByPk(id);
 
-    if (pedido) {
-        await Pedido.update(
-            { codigo, quantidade, clienteId, produtoId },
-            { where: { id: req.params.id }}
+        if (pedido) {
+            await Pedido.update(
+                { codigo, quantidade, clienteId, produtoId },
+                { where: { id: req.params.id } }
             );
-        
-        await pedido.save();
-        
+            await pedido.save();
             res.json({ message: "O pedido foi editado." });
-    } else {
-        res.status(404).json({ message: "Pedido não encontrado." });
-    }
+        } else {
+            res.status(404).json({ message: "Pedido não encontrado." });
+        }
     } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Um erro aconteceu." });
+        console.error(err);
+        res.status(500).json({ message: "Um erro aconteceu." });
     }
 });
 
