@@ -1,5 +1,6 @@
 const { Router } = require("express");
-const Servico = require("../database/servico")
+const { Servico, schemaServico } = require("../database/servico")
+const customMessages = require("../joi/customMessages");
 
 const router = Router();
 
@@ -25,7 +26,7 @@ router.get('/servicos/:id', async (req, res) => {
     if (servico) {
       res.json(servico);
     } else {
-      res.status(404).json({ message: "Serviço não encontrado." })
+      res.status(404).json({ message: "Serviço não encontrado." });
     }
   } catch (error) {
     console.error(error);
@@ -34,10 +35,10 @@ router.get('/servicos/:id', async (req, res) => {
 });
 
 router.post("/servicos", async (req, res) => {
-  const { nome, preco } = req.body;
-  if (!nome) return res.status(400).json({ message: "O nome é obrigatório." });
-  if (!preco) return res.status(400).json({ message: "O preço é obrigatório." });
   try {
+    const { nome, preco } = req.body;
+    const { error } = schemaServico.validate({ nome, preco }, { abortEarly: false, messages: customMessages });
+    if (error) return res.status(400).json(error.details.map(detalhe => detalhe.message));
     const servico = await Servico.create({ nome, preco });
     res.status(201).json(servico);
   }
@@ -47,12 +48,12 @@ router.post("/servicos", async (req, res) => {
 });
 
 router.delete("/servicos/all", async (req, res) => {
-  try{
-      await Servico.destroy({where: {}});
-      res.json({message: "Todos os servicos foram deletados."})
-  } catch(err){
-      console.log(err);
-      res.status(500).json({message:"Um erro aconteceu."})
+  try {
+    await Servico.destroy({ where: {} });
+    res.json({ message: "Todos os servicos foram deletados." })
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Um erro aconteceu." })
   }
 });
 
@@ -73,21 +74,21 @@ router.delete("/servicos/:id", async (req, res) => {
 
 //Rota para atualizar servico;
 router.put("/servicos/:id", async (req, res) => {
-  const { id } = req.params;
-  const { nome, preco } = req.body;
-  if (!nome) return res.status(400).json({ message: "O nome é obrigatório"});
-  if (!preco) return res.status(400).json({ message: "O preço é obrigatório"});
-  try{
+  try {
+    const { id } = req.params;
+    const { nome, preco } = req.body;
+    const { error } = schemaServico.validate({ nome, preco }, { abortEarly: false, messages: customMessages });
+    if (error) return res.status(400).json(error.details.map(detalhe => detalhe.message));
     const servico = await Servico.findByPk(id);
-    if (servico){
-      await servico.update({nome, preco});
+    if (servico) {
+      await servico.update({ nome, preco });
       res.status(200).json("Serviço editado com sucesso!")
     } else {
       res.status(404).json({ message: "O serviço não foi encontrado." });
     }
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    res.status(500).send({message: "Um erro ocorreu"});
+    res.status(500).send({ message: "Um erro ocorreu" });
   }
 });
 
