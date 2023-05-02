@@ -30,4 +30,4 @@ const schemaPedido = Joi.object({
 
 const schemaPedidos = Joi.array().items(schemaPedido);
 
-module.exports = { Pedido, schemaPedidos };
+module.exports = { Pedido, schemaPedidos, schemaPedido };
