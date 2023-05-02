@@ -60,7 +60,34 @@ router.post("/pedidos", async (req, res) => {
         res.status(500).json({ message: "Um erro aconteceu." });
     }
 });
+
 // Put
+router.put("/pedidos/:id", async (req, res) => {
+
+    const { codigo, quantidade, clienteId, produtoId } = req.body;
+    const { id } = req.params;
+    
+    try {
+    const pedido = await Pedido.findByPk(id);
+    console.log(pedido);
+
+    if (pedido) {
+        await Pedido.update(
+            { codigo, quantidade, clienteId, produtoId },
+            { where: { id: req.params.id }}
+            );
+        
+        await pedido.save();
+        
+            res.json({ message: "O pedido foi editado." });
+    } else {
+        res.status(404).json({ message: "Pedido não encontrado." });
+    }
+    } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Um erro aconteceu." });
+    }
+});
 
 // Delete
 
