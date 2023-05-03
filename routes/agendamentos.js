@@ -15,7 +15,7 @@ router.get("/agendamentos", async (req, res) => {
 
 router.get("/agendamentos/:id", async (req, res) => {
     try {
-        const agendamento = await Agendamento.findByPk(req.body.id);
+        const agendamento = await Agendamento.findByPk(req.params.id);
         if (agendamento) {
             res.json(agendamento)
         }
