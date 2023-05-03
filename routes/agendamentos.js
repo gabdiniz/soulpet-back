@@ -9,9 +9,25 @@ router.get("/agendamentos", async (req, res) => {
         const listaAgendamento = await Agendamento.findAll();
         res.json(listaAgendamento)
     } catch (err) {
-        res.status(500).json({ message: "Um erro aconteceu." })
+        res.status(500).json({ message: "Um erro aconteceu." });
     }
 });
+
+router.get("/agendamentos/:id", async (req, res) => {
+    try {
+        const agendamento = await Agendamento.findByPk(req.body.id);
+        if (agendamento) {
+            res.json(agendamento)
+        }
+        else {
+            res.status(404).json({ message: "Agendamentos não encontrado." });
+        }
+    }
+    catch (e) {
+        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+})
+
 
 router.post("/agendamentos", async (req, res) => {
     try {
