@@ -24,6 +24,7 @@ const rotasServico = require("./routes/servicos");
 const rotasPedidos = require("./routes/pedidos")
 const rotasAgendamentos = require("./routes/agendamentos");
 const rotasDashboard = require("./routes/dashboard");
+const errorHandler = require("./utils/ErrorHandler");
 
 // Juntar ao app as rotas dos arquivos
 app.use(rotasClientes); // Configurar o grupo de rotas no app
@@ -33,6 +34,7 @@ app.use(rotasServico);
 app.use(rotasPedidos);
 app.use(rotasAgendamentos);
 app.use(rotasDashboard);
+app.use(errorHandler)
 
 // Escuta de eventos (listen)
 app.listen(3001, () => {

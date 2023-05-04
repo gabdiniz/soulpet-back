@@ -7,62 +7,62 @@ const { Router } = require("express");
 
 const router = Router();
 
-router.get("/pedidos", async (req, res) => {
+router.get("/pedidos", async (req, res, next) => {
     try {
         const listaPedidos = await Pedido.findAll();
         res.json(listaPedidos)
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
-router.get("/pedidos/:id", async (req, res) => {
+router.get("/pedidos/:id", async (req, res, next) => {
     try {
         const pedido = await Pedido.findByPk(req.params.id);
         res.json(pedido);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
-router.get("/pedidos/produtos/:id", async (req, res) => {
+router.get("/pedidos/produtos/:id", async (req, res, next) => {
     try {
         const produto = await Produto.findByPk(req.params.id);
         res.json(produto);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
-router.get("/pedidos/clientes/:id", async (req, res) => {
+router.get("/pedidos/clientes/:id", async (req, res, next) => {
     try {
         const cliente = await Cliente.findByPk(req.params.id);
         res.json(cliente);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
 // Post
-router.post("/pedidos", async (req, res) => {
+router.post("/pedidos", async (req, res, next) => {
     try {
         const pedidos = req.body;
         const { error } = schemaPedidos.validate(pedidos, { abortEarly: false, messages: customMessages });
         if (error) return res.status(400).json(error.details.map(detalhe => detalhe.message));
         const pedidosCriados = await Pedido.bulkCreate(pedidos, { validate: true });
         res.status(201).json(pedidosCriados);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
 // Put
-router.put("/pedidos/:id", async (req, res) => {
+router.put("/pedidos/:id", async (req, res, next) => {
     try {
         const { codigo, quantidade, clienteId, produtoId } = req.body;
         const { id } = req.params;
@@ -80,15 +80,15 @@ router.put("/pedidos/:id", async (req, res) => {
         } else {
             res.status(404).json({ message: "Pedido não encontrado." });
         }
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
 // Delete
 
-router.delete("/pedidos/:id", async (req, res) => {
+router.delete("/pedidos/:id", async (req, res, next) => {
     try {
         const pedido = await Pedido.findByPk(req.params.id);
         if (!pedido) {
@@ -96,13 +96,13 @@ router.delete("/pedidos/:id", async (req, res) => {
         }
         await pedido.destroy();
         res.json({ message: "Pedido removido." });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
-router.delete("/pedidos/clientes/:id", async (req, res) => {
+router.delete("/pedidos/clientes/:id", async (req, res, next) => {
     try {
         const pedido = await Pedido.findAll({ where: { clientesId: req.params.id } });
         if (pedido.length === 0) {
@@ -111,22 +111,22 @@ router.delete("/pedidos/clientes/:id", async (req, res) => {
         await pedido.destroy({ where: { clientesId: req.params.id } });
 
         res.json({ message: "Pedidos removidos com sucesso." });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
-router.delete("/pedidos/produtos/:id", async (req, res) => {
+router.delete("/pedidos/produtos/:id", async (req, res, next) => {
     try {
         const pedido = await Pedido.findAll({ where: { produtosId: req.params.id } });
         if (pedido.length === 0) {
             return res.status(404).json({ message: "Pedidos não encontrados." });
         }
         await pedido.destroy({ where: { produtosId: req.params.id } });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 

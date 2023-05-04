@@ -13,8 +13,9 @@ router.get('/servicos', async (req, res) => {
     if (preco) where.preco = preco;
     const servicos = await Servico.findAll({ where });
     res.json(servicos);
-  } catch (error) {
-    res.status(500).send({ message: "Um erro aconteceu." });
+  }
+  catch (err) {
+    next(err);
   }
 });
 
@@ -28,9 +29,9 @@ router.get('/servicos/:id', async (req, res) => {
     } else {
       res.status(404).json({ message: "Serviço não encontrado." });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: "Um erro aconteceu." });
+  }
+  catch (err) {
+    next(err);
   }
 });
 
@@ -42,8 +43,8 @@ router.post("/servicos", async (req, res) => {
     const servico = await Servico.create({ nome, preco });
     res.status(201).json(servico);
   }
-  catch (e) {
-    res.status(500).json({ message: "Um erro aconteceu." })
+  catch (err) {
+    next(err);
   }
 });
 
@@ -51,9 +52,9 @@ router.delete("/servicos/all", async (req, res) => {
   try {
     await Servico.destroy({ where: {} });
     res.json({ message: "Todos os servicos foram deletados." })
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Um erro aconteceu." })
+  }
+  catch (err) {
+    next(err);
   }
 });
 
@@ -66,9 +67,9 @@ router.delete("/servicos/:id", async (req, res) => {
     } else {
       res.status(404).json({ message: "Serviço não encontrado." })
     }
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+  catch (err) {
+    next(err);
   }
 });
 
@@ -86,9 +87,9 @@ router.put("/servicos/:id", async (req, res) => {
     } else {
       res.status(404).json({ message: "O serviço não foi encontrado." });
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: "Um erro ocorreu" });
+  }
+  catch (err) {
+    next(err);
   }
 });
 

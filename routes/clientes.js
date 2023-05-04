@@ -30,9 +30,8 @@ router.get("/clientes/:id", async (req, res) => {
   }
 });
 
-router.post("/clientes", async (req, res) => {
+router.post("/clientes", async (req, res, next) => {
   // Coletar os dados do req.body
-
   try {
     const { nome, email, telefone, endereco } = req.body;
     const { error } = schemaClienteEndereco.validate({ nome, email, telefone, endereco }, { abortEarly: false, messages: customMessages })
@@ -43,19 +42,14 @@ router.post("/clientes", async (req, res) => {
     );
     // Dentro de 'novo' estará o o objeto criado
     res.status(201).json(novo);
-  } catch (err) {
-    console.log(err);
-    if (err.name === 'SequelizeUniqueConstraintError') {
-      res.status(400).json({ message: "Este email já está cadastrado" })
-    }
-    else {
-      res.status(500).json({ message: "Um erro aconteceu." });
-    }
+  }
+  catch (err) {
+    next(err);
   }
 });
 
 // atualizar um cliente
-router.put("/clientes/:id", async (req, res) => {
+router.put("/clientes/:id", async (req, res, next) => {
   // obter dados do corpo da requisão
   // obter identificação do cliente pelos parametros da rota
   try {
@@ -84,32 +78,32 @@ router.put("/clientes/:id", async (req, res) => {
     } else {
       res.status(404).json({ message: "Cliente não encontrado." });
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+  catch (err) {
+    next(err);
   }
 });
 
 // excluir um cliente
-router.delete("/clientes/:id", async (req, res) => {
+router.delete("/clientes/:id", async (req, res, next) => {
   // obter identificação do cliente pela rota
-  const { id } = req.params;
   // buscar cliente por id
-  const cliente = await Cliente.findOne({ where: { id } });
   try {
+    const { id } = req.params;
+    const cliente = await Cliente.findOne({ where: { id } });
     if (cliente) {
       await cliente.destroy();
       res.status(200).json({ message: "Cliente removido." });
     } else {
       res.status(404).json({ message: "Cliente não encontrado." });
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+  catch (err) {
+    next(err);
   }
 });
 //Esta rota deve responder com os dados do endereço do Cliente especificado pelo clienteId.
-router.get("/clientes/:clienteId/endereco", async (req, res) => {
+router.get("/clientes/:clienteId/endereco", async (req, res, next) => {
   const { clienteId } = req.params;
 
   try {
@@ -123,13 +117,13 @@ router.get("/clientes/:clienteId/endereco", async (req, res) => {
     }
 
     res.json(cliente.endereco);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+  catch (err) {
+    next(err);
   }
 });
 // Rota para listar os pets de um cliente
-router.get("/clientes/:clienteId/pets", async (req, res) => {
+router.get("/clientes/:clienteId/pets", async (req, res, next) => {
   const clienteId = req.params.clienteId;
 
   try {
@@ -148,9 +142,9 @@ router.get("/clientes/:clienteId/pets", async (req, res) => {
     }
 
     res.json(pets);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Um erro aconteceu." });
+  }
+  catch (err) {
+    next(err);
   }
 });
 
