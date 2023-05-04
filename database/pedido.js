@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelize");
+const { DataTypes, Sequelize } = require("sequelize");
 const { connection } = require("./database");
 const { Cliente } = require("./cliente");
 const { Produto } = require("./produto");
@@ -8,6 +8,7 @@ const Pedido = connection.define("pedido", {
     codigo: {
         type: DataTypes.UUID,
         allowNull: false,
+        defaultValue: Sequelize.UUIDV4
     },
     quantidade: {
         type: DataTypes.INTEGER,
@@ -22,7 +23,7 @@ Produto.hasMany(Pedido, { onDelete: "CASCADE" });
 Pedido.belongsTo(Produto);
 
 const schemaPedido = Joi.object({
-    codigo: Joi.string().uuid().required(),
+    codigo: Joi.string().uuid().optional(),
     quantidade: Joi.number().integer().required(),
     clienteId: Joi.number().integer().required(),
     produtoId: Joi.number().integer().required()
