@@ -4,32 +4,33 @@ const customMessages = require("../joi/customMessages");
 
 const router = Router();
 
-router.get("/agendamentos", async (req, res) => {
+router.get("/agendamentos", async (req, res, next) => {
     try {
         const listaAgendamento = await Agendamento.findAll();
         res.json(listaAgendamento)
-    } catch (err) {
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
-router.get("/agendamentos/:id", async (req, res) => {
+router.get("/agendamentos/:id", async (req, res, next) => {
     try {
         const agendamento = await Agendamento.findByPk(req.params.id);
         if (agendamento) {
             res.json(agendamento)
         }
         else {
-            res.status(404).json({ message: "Agendamentos não encontrado." });
+            res.status(404).json({ message: "Agendamento não encontrado." });
         }
     }
-    catch (e) {
-        res.status(500).json({ message: "Um erro aconteceu." });
+    catch (err) {
+        next(err);
     }
 })
 
 
-router.post("/agendamentos", async (req, res) => {
+router.post("/agendamentos", async (req, res, next) => {
     try {
         const { petId, servicoId, dataAgendada, realizada } = req.body;
         const { error } = schemaAgendamento.validate({ petId, servicoId, dataAgendada, realizada }, { abortEarly: false, messages: customMessages });
@@ -40,12 +41,11 @@ router.post("/agendamentos", async (req, res) => {
         res.status(201).json(novoAgendamento);
     }
     catch (err) {
-        console.log(err)
-        res.status(500).json(err);
+        next(err);
     }
 });
 
-router.put("/agendamentos/:id", async (req, res) => {
+router.put("/agendamentos/:id", async (req, res, next) => {
     try {
         const { petId, servicoId, dataAgendada, realizada } = req.body;
         const agendamento = await Agendamento.findByPk(req.params.id);
@@ -59,21 +59,21 @@ router.put("/agendamentos/:id", async (req, res) => {
         }
     }
     catch (err) {
-        res.status(500).json({ message: "Um erro aconteceu." });
+        next(err);
     }
 })
 
-router.delete("/agendamentos/all", async (req, res) => {
+router.delete("/agendamentos/all", async (req, res, next) => {
     try {
         await Agendamento.destroy({ where: {} });
         res.json({ message: "Todos os Agendamentos foram deletados." })
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." })
+    }
+    catch (err) {
+        next(err);
     }
 })
 
-router.delete("/agendamentos/:id", async (req, res) => {
+router.delete("/agendamentos/:id", async (req, res, next) => {
     const agendamento = await Agendamento.findOne({ where: { id: req.params.id } });
     try {
         if (agendamento) {
@@ -82,8 +82,9 @@ router.delete("/agendamentos/:id", async (req, res) => {
         } else {
             res.status(404).json({ message: "Agendamento não encontrado." })
         }
-    } catch (err) {
-        res.status(500).json({ message: "Um erro aconteceu." })
+    }
+    catch (err) {
+        next(err);
     }
 })
 

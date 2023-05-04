@@ -6,7 +6,7 @@ const { toDate } = require("date-fns-tz")
 
 const router = Router();
 
-router.get("/produtos", async (req, res) => {
+router.get("/produtos", async (req, res, next) => {
 
     const { nome, preco, descricao, desconto, dataDesconto, categoria } = req.query;
     const where = {};
@@ -21,12 +21,13 @@ router.get("/produtos", async (req, res) => {
     try {
         const listaProdutos = await Produto.findAll({ where });
         res.json(listaProdutos);
-    } catch (error) {
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
-router.get("/produtos/:id", async (req, res) => {
+router.get("/produtos/:id", async (req, res, next) => {
     try {
         const { id } = req.params;
         const produto = await Produto.findByPk(id);
@@ -36,13 +37,12 @@ router.get("/produtos/:id", async (req, res) => {
             res.status(404).json({ message: "Produto não encontrado." });
         }
     }
-    catch (e) {
-        console.log(e)
-        res.status(500).json({ message: "Um erro aconteceu." });
+    catch (err) {
+        next(err);
     }
 });
 
-router.post("/produtos", async (req, res) => {
+router.post("/produtos", async (req, res, next) => {
     try {
         const { nome, preco, descricao, desconto, dataDesconto, categoria } = req.body;
         const { error } = schemaProduto.validate({ nome, preco, descricao, desconto, dataDesconto, categoria }, { abortEarly: false, messages: customMessages });
@@ -63,24 +63,24 @@ router.post("/produtos", async (req, res) => {
             { nome, preco, descricao, desconto, dataDesconto, categoria },
         );
         res.status(201).json(novo);
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
-router.delete("/produtos/all", async (req, res) => {
+router.delete("/produtos/all", async (req, res, next) => {
     try {
         await Produto.destroy({ where: {} });
         res.json({ message: "Todos os produtos foram deletados." });
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
 
-router.delete("/produtos/:id", async (req, res) => {
+router.delete("/produtos/:id", async (req, res, next) => {
     const produto = await Produto.findByPk(req.params.id);
     try {
         if (produto) {
@@ -89,13 +89,13 @@ router.delete("/produtos/:id", async (req, res) => {
         } else {
             res.status(404).json({ message: "Produto não encontrado." });
         }
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
-router.put("/produtos/:id", async (req, res) => {
+router.put("/produtos/:id", async (req, res, next) => {
     try {
         const { nome, preco, descricao, desconto, dataDesconto, categoria } = req.body;
         const { id } = req.params;
@@ -124,9 +124,9 @@ router.put("/produtos/:id", async (req, res) => {
         } else {
             res.status(404).json({ message: "Produto não encontrado." });
         }
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Um erro aconteceu." });
+    }
+    catch (err) {
+        next(err);
     }
 });
 
